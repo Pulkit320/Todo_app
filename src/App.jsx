@@ -4,29 +4,33 @@ import Form from "./components/Form";
 import Filtering from "./components/Filtering";
 import { useState, useEffect } from "react";
 import { nanoid } from "nanoid";
+import Search from "./components/Search";
 
 
 function App() {
-  const [todos, setTodos] = useState([])
-  const [filter,setFilter] = useState("all")
+  const [todos, setTodos] = useState(()=>{
+    const storedTodos = localStorage.getItem("todos");
+    if(storedTodos){
+      return JSON.parse(storedTodos);
+    }
+    return [];
+  })
+  const [filter,setFilter] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
+
 
   useEffect(() => {
     localStorage.setItem("todos",JSON.stringify(todos));
   },[todos]);
 
-  useEffect(() => {
-    const storedTodos = localStorage.getItem("todos");
-    if (storedTodos) {
-      setTodos(JSON.parse(storedTodos));
-    }
-  },[]);
 
-
-  function addTodo(name){
+  function addTodo(name,priority){
     const newTodo = {
       id: nanoid(),
       name: name,
-      completed: false
+      completed: false,
+      priority: priority,
+      createdAt: new Date().toISOString()
     }
     setTodos([...todos, newTodo])
   }
@@ -56,7 +60,13 @@ function App() {
     setTodos(updatedTodos);
   }
 
-  const filteredTodos = todos.filter(todo=>{
+  const searchTodos = todos.filter(todo=>{
+    if(searchTerm.trim() === "")
+        return todo;
+    const lowerSearchTerm = searchTerm.toLowerCase();
+    return todo.name.toLowerCase().includes(lowerSearchTerm)
+  })
+  const filteredTodos = searchTodos.filter(todo=>{
     if(filter=="complete"){
       return todo.completed;
     }
@@ -76,10 +86,10 @@ function App() {
       toggleTaskCompleted={toggleTaskCompleted}
       deleteTodo={deleteTodo}
       editTodo={editTodo}
+      priority={todo.priority}
+      createdAt = {todo.createdAt}
     />
   ));
-
-
 
   return (
     <div className = "todoapp">
@@ -87,6 +97,7 @@ function App() {
       <Filtering setFilter = {setFilter}/>
       <div className = "todo-list">
         <h2> Task List</h2>
+        <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm}/> 
         <ul role = "list"
         className  = "todo-list-items">
           {taskList}

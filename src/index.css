@@ -98,18 +98,21 @@ body {
   display: flex;
   align-items: center;
   min-height: 48px;
+  gap: 12px;
 }
 
 .checkbox input[type="checkbox"] {
   width: 36px;
   height: 36px;
+  /* font-size: 1rem; */
   margin: 0 0.7rem 0 0;
   cursor: pointer;
   accent-color: #ffffff;
 }
 
+
 .todo-label {
-  font-size: 1rem;
+  font-size: 1.1rem;
   cursor: pointer;
 }
 
@@ -117,6 +120,25 @@ body {
   display: flex;
   gap: 0.5rem;
   margin-top: 0.4rem;
+}
+
+.priority{
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  gap:0.5rem;
+}
+
+.priority.low{
+  background-color: green;
+}
+
+.priority.medium{
+  background-color: orange;
+}
+
+.priority.high{
+  background-color: red;
 }
 
 .btn-all,.btn-completed,
@@ -130,6 +152,25 @@ body {
   cursor: pointer;
 }
 
+.search-tab input[type="text"]{
+  /* margin: 0; */
+  border: 1px solid black;
+  padding: 0.8 rem;
+  height: 54px;
+  width: 70%;
+  gap: 2rem;
+}
+
+.search-tab input[type = "text"]:focus{
+  outline: 2px soild #777;
+}
+
+.search-btn{
+  flex: 1;
+  height: 54px;
+  width: 30%;
+  font-size : 1rem;
+}
 
 .btn-all, .btn-completed, .btn-incompleted{
   background-color: white;

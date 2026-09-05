@@ -12,7 +12,6 @@ function Todo(props){
     function handleSubmit(e){
         e.preventDefault();
         props.editTodo(props.id, newName);
-        // setNewName(props.name);
         setIsEditing(false);
     }
     const EditTemplate = (
@@ -25,11 +24,17 @@ function Todo(props){
         </form>
     )
 
+    const dateView = new Date(props.createdAt).toLocaleTimeString();
+    
     const viewTemplate = (
         <li className = "todo-item">
             <div className = "checkbox">
                 <input id = {props.id} type = "checkbox" checked = {props.completed} onChange = {() => props.toggleTaskCompleted(props.id)}/>
                 <label className = "todo-label" htmlFor = {props.id}> {props.name} </label>
+                <span className = {`priority ${props.priority}`}>
+                    {props.priority}
+                </span>
+                <span> Created: {dateView}</span>
             </div>
             <div className = "btn-group">
                 <button className = "btn btn-edit" onClick = {()=> setIsEditing(true)}> Edit </button>
