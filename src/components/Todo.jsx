@@ -24,7 +24,7 @@ function Todo(props){
         </form>
     )
 
-    const dateView = new Date(props.createdAt).toLocaleTimeString();
+    const dateView = new Date(props.created_at).toLocaleTimeString();
     
     const viewTemplate = (
         <li className = "todo-item">

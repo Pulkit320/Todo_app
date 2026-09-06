@@ -8,58 +8,133 @@ import Search from "./components/Search";
 
 
 function App() {
-  const [todos, setTodos] = useState(()=>{
-    const storedTodos = localStorage.getItem("todos");
-    if(storedTodos){
-      return JSON.parse(storedTodos);
-    }
-    return [];
-  })
+  const [todos, setTodos] = useState([]);
   const [filter,setFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
 
 
   useEffect(() => {
-    localStorage.setItem("todos",JSON.stringify(todos));
-  },[todos]);
+    const fetchTodos = async()=>{
+      try{
+        const response = await fetch(
+          "http://localhost:3000/todos"
+        );
 
-
-  function addTodo(name,priority){
-    const newTodo = {
-      id: nanoid(),
-      name: name,
-      completed: false,
-      priority: priority,
-      createdAt: new Date().toISOString()
+        const data = await response.json();
+        setTodos(data);
+      }catch{
+        console.error("Error fetching todo")
+      }
     }
-    setTodos([...todos, newTodo])
-  }
+    fetchTodos();
+  },[]);
 
-  function deleteTodo(id){
-    const updatedTodos = todos.filter(todo => todo.id !== id);
-    setTodos(updatedTodos);
-  }
 
-  function toggleTaskCompleted(id){
-    const updatedTodos = todos.map(todo => {
-      if (todo.id === id) {
-        return {...todo, completed: !todo.completed};
+  async function addTodo(name,priority){
+    try{
+      const response = await fetch(
+        "http://localhost:3000/todos",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({name,priority})
+        }
+      );
+
+      if(!response.ok){
+        throw new Error("Failed to add todo");
       }
-      return todo;
-    });
-    setTodos(updatedTodos);
+      const newTodo = await response.json();
+
+      setTodos([...todos, newTodo])
+    }catch(error){
+      console.error("Error adding todo",error);
+    }
   }
 
-  function editTodo(id, newName){
-    const updatedTodos = todos.map(todo => {
-      if(todo.id === id){
-        return {...todo, name: newName};
+  async function deleteTodo(id){
+    try{
+      const response = await fetch(
+        `http://localhost:3000/todos/${id}`,
+        {
+          method : "DELETE"
+        }
+      );
+      if(!response.ok){
+        throw new Error("Failed to delete task");
       }
-      return todo;
-    });
-    setTodos(updatedTodos);
+      const updatedTodos = todos.filter(todo => todo.id !== id);
+      setTodos(updatedTodos);
+    }catch(error){
+      console.error("Error in deleting",error);
+    }
   }
 
+  async function toggleTaskCompleted(id){
+    try{
+      const todo = todos.find(todo=>todo.id === id);
+
+      const response = await fetch(
+        `http://localhost:3000/todos/${id}`,
+        {
+          method: "PATCH",
+          headers: {
+              "Content-Type" : "application/json"
+          },
+          body: JSON.stringify({
+            completed: !todo.completed
+          })
+        }
+      );
+
+      if(!response.ok){
+        throw new Error("Failed to toggle task");
+      }
+      
+      const updatedTodo = await response.json();
+
+      setTodos(prevTodos =>
+        prevTodos.map(todo=>
+          todo.id === id?updatedTodo : todo
+        )
+      );
+    }catch(error){
+      console.error("Error in toggling",error);
+    }
+  }
+
+  async function editTodo(id, newName){
+    try{
+
+      const response = await fetch(
+        `http://localhost:3000/todos/${id}`,
+        {
+          method: "PATCH",
+           headers: {
+              "Content-Type" : "application/json"
+          },
+          body: JSON.stringify({
+            name: newName
+          })
+        }
+      );
+      if(!response.ok){
+        throw new Error("Failed to edit task");
+      }
+
+
+    const updatedTodos = await response.json();
+    setTodos(prevTodos=>
+      prevTodos.map(todo=>
+        todo.id === id?updatedTodos:todo
+      )
+    );
+    }catch(error){
+      console.log("Error in editing name",error);
+    }
+  }
   const searchTodos = todos.filter(todo=>{
     if(searchTerm.trim() === "")
         return todo;
@@ -87,7 +162,7 @@ function App() {
       deleteTodo={deleteTodo}
       editTodo={editTodo}
       priority={todo.priority}
-      createdAt = {todo.createdAt}
+      created_at = {todo.created_at}
     />
   ));
 
