@@ -4,6 +4,8 @@ import Form from "./components/Form";
 import Filtering from "./components/Filtering";
 import { useState, useEffect } from "react";
 import { nanoid } from "nanoid";
+import Login from "./components/Login";
+import Logout from "./components/Logout";
 import Search from "./components/Search";
 
 
@@ -11,33 +13,58 @@ function App() {
   const [todos, setTodos] = useState([]);
   const [filter,setFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
-
+  const [isLoggedIn,setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     const fetchTodos = async()=>{
+      // if(isLoggedIn===true){
+      const token = localStorage.getItem("token");
+      console.log("isLoggedIn:", isLoggedIn);
+      if(!token)
+          return;
       try{
         const response = await fetch(
-          "http://localhost:3000/todos"
+          "http://localhost:3000/todos",
+          {
+            headers:{
+              "Authorization" : `Bearer ${token}`
+            }
+          }
         );
 
+        if(!response.ok){
+                throw new Error("Failed to login in");
+            }
         const data = await response.json();
+        console.log("data from backend:", data);
         setTodos(data);
       }catch{
         console.error("Error fetching todo")
-      }
+
     }
+    
+  }
     fetchTodos();
   },[]);
 
 
+  function handleLogout(){
+    localStorage.removeItem("token");
+    setTodos([]);
+    setIsLoggedIn(false);
+  }
+
   async function addTodo(name,priority){
     try{
+      const token = localStorage.getItem("token")
       const response = await fetch(
+      
         "http://localhost:3000/todos",
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "Authorization" : `Bearer ${token}`
           },
           body: JSON.stringify({name,priority})
         }
@@ -56,10 +83,15 @@ function App() {
 
   async function deleteTodo(id){
     try{
+      const token = localStorage.getItem("token")      
       const response = await fetch(
         `http://localhost:3000/todos/${id}`,
+
         {
-          method : "DELETE"
+          method : "DELETE",
+          headers: {
+          "Authorization" : `Bearer ${token}`
+          }
         }
       );
       if(!response.ok){
@@ -75,13 +107,14 @@ function App() {
   async function toggleTaskCompleted(id){
     try{
       const todo = todos.find(todo=>todo.id === id);
-
+      const token = localStorage.getItem("token")
       const response = await fetch(
         `http://localhost:3000/todos/${id}`,
         {
           method: "PATCH",
           headers: {
-              "Content-Type" : "application/json"
+              "Content-Type" : "application/json",
+              "Authorization" : `Bearer ${token}`
           },
           body: JSON.stringify({
             completed: !todo.completed
@@ -107,13 +140,15 @@ function App() {
 
   async function editTodo(id, newName){
     try{
-
+      const token = localStorage.getItem("token")
       const response = await fetch(
         `http://localhost:3000/todos/${id}`,
         {
           method: "PATCH",
            headers: {
-              "Content-Type" : "application/json"
+              "Content-Type" : "application/json",
+              "Authorization" : `Bearer ${token}`
+          
           },
           body: JSON.stringify({
             name: newName
@@ -165,9 +200,12 @@ function App() {
       created_at = {todo.created_at}
     />
   ));
-
-  return (
+  const loginTemplate = (
+    <Login onLogin = {setIsLoggedIn}/>
+  )
+  const TodoTemplate = (
     <div className = "todoapp">
+      <Logout handleLogout={handleLogout} />
       <Form addTodo = {addTodo}/>
       <Filtering setFilter = {setFilter}/>
       <div className = "todo-list">
@@ -179,7 +217,8 @@ function App() {
         </ul>
       </div>
     </div>
-  );
+  )
+  return (<> {isLoggedIn? TodoTemplate : loginTemplate}</>);
 }
 
 export default App;

@@ -1,9 +1,9 @@
 import express from "express";
-import pool from "../db.js";
+import authMiddleware from "../middleware/authMiddleware.js";
 import { getTodo,getById,createTodo , deleteById, updatebyId} from "../controller/todoController.js";
 
 const router = express.Router()
-
+router.use(authMiddleware)
 //GET
 
 router.get('/',getTodo);

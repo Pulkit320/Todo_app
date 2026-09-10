@@ -11,6 +11,82 @@ body {
   font-family: Arial, sans-serif;
 }
 
+.login-page {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f5f5f5;
+}
+
+.btn-logout{
+  position : absolute;
+  top: 20px;
+  right: 20px;
+
+  padding: 10px 18px;
+  border: none;
+  border-radius: 6px;
+
+  cursor: pointer;
+  font-size: 14px;
+}
+
+#login-form {
+    width: 320px;
+    padding: 30px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.email,
+.password-user {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+
+.email:focus,
+.password-user:focus {
+    outline: none;
+    border-color: #555;
+}
+
+.btn-login,
+.btn-signup {
+    padding: 12px;
+    font-size: 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.btn-login {
+    background-color: #333;
+    color: white;
+}
+
+.btn-login:hover {
+    background-color: #555;
+}
+
+.btn-signup {
+    background-color: #e5e5e5;
+    color: #333;
+}
+
+.btn-signup:hover {
+    background-color: #d5d5d5;
+}
+
 .todoapp {
   width: 100%;
   max-width: 560px;
