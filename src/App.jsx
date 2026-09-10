@@ -1,51 +1,45 @@
 import "./App.css";
 import Todo from "./components/Todo";
 import Form from "./components/Form";
+import SignUp from "./components/SignUp";
 import Filtering from "./components/Filtering";
 import { useState, useEffect } from "react";
-import { nanoid } from "nanoid";
 import Login from "./components/Login";
 import Logout from "./components/Logout";
+import apiFetch from "./components/apiFetch";
 import Search from "./components/Search";
+
 
 
 function App() {
   const [todos, setTodos] = useState([]);
   const [filter,setFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
-  const [isLoggedIn,setIsLoggedIn] = useState(false);
+  const [isLoggedIn,setIsLoggedIn] = useState(localStorage.getItem("token")!== null);
+  const [showSignUp,setShowSignUp] = useState(false);
+  
+
 
   useEffect(() => {
-    const fetchTodos = async()=>{
-      // if(isLoggedIn===true){
-      const token = localStorage.getItem("token");
-      console.log("isLoggedIn:", isLoggedIn);
-      if(!token)
-          return;
+    if(isLoggedIn)
+      {const fetchTodos = async()=>{
       try{
-        const response = await fetch(
-          "http://localhost:3000/todos",
-          {
-            headers:{
-              "Authorization" : `Bearer ${token}`
-            }
-          }
-        );
+        const url = "http://localhost:3000/todos";
+        const options = {};
 
-        if(!response.ok){
-                throw new Error("Failed to login in");
-            }
+        const response = await apiFetch(url,options,{setIsLoggedIn});
         const data = await response.json();
         console.log("data from backend:", data);
         setTodos(data);
       }catch{
         console.error("Error fetching todo")
 
-    }
-    
+    }  
   }
-    fetchTodos();
-  },[]);
+      fetchTodos();
+
+}
+  },[isLoggedIn]);
 
 
   function handleLogout(){
@@ -56,49 +50,38 @@ function App() {
 
   async function addTodo(name,priority){
     try{
-      const token = localStorage.getItem("token")
-      const response = await fetch(
+      const response = await apiFetch(
       
         "http://localhost:3000/todos",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization" : `Bearer ${token}`
           },
           body: JSON.stringify({name,priority})
-        }
+        },
+        {setIsLoggedIn}
       );
 
-      if(!response.ok){
-        throw new Error("Failed to add todo");
-      }
       const newTodo = await response.json();
-
-      setTodos([...todos, newTodo])
+      setTodos(prevTodos=>[...prevTodos,newTodo]);
     }catch(error){
       console.error("Error adding todo",error);
     }
   }
 
   async function deleteTodo(id){
-    try{
-      const token = localStorage.getItem("token")      
-      const response = await fetch(
+    try{    
+      const response = await apiFetch(
         `http://localhost:3000/todos/${id}`,
 
         {
           method : "DELETE",
-          headers: {
-          "Authorization" : `Bearer ${token}`
-          }
-        }
+        },
+        {setIsLoggedIn}
       );
-      if(!response.ok){
-        throw new Error("Failed to delete task");
-      }
-      const updatedTodos = todos.filter(todo => todo.id !== id);
-      setTodos(updatedTodos);
+
+      setTodos(prevTodos=>prevTodos.filter(todo=>todo.id!== id));
     }catch(error){
       console.error("Error in deleting",error);
     }
@@ -107,24 +90,19 @@ function App() {
   async function toggleTaskCompleted(id){
     try{
       const todo = todos.find(todo=>todo.id === id);
-      const token = localStorage.getItem("token")
-      const response = await fetch(
+      const response = await apiFetch(
         `http://localhost:3000/todos/${id}`,
         {
           method: "PATCH",
           headers: {
               "Content-Type" : "application/json",
-              "Authorization" : `Bearer ${token}`
           },
           body: JSON.stringify({
             completed: !todo.completed
           })
-        }
+        },
+        {setIsLoggedIn}
       );
-
-      if(!response.ok){
-        throw new Error("Failed to toggle task");
-      }
       
       const updatedTodo = await response.json();
 
@@ -140,24 +118,21 @@ function App() {
 
   async function editTodo(id, newName){
     try{
-      const token = localStorage.getItem("token")
-      const response = await fetch(
+      const response = await apiFetch(
         `http://localhost:3000/todos/${id}`,
         {
           method: "PATCH",
            headers: {
               "Content-Type" : "application/json",
-              "Authorization" : `Bearer ${token}`
           
           },
           body: JSON.stringify({
             name: newName
           })
-        }
+        },{setIsLoggedIn}
       );
-      if(!response.ok){
-        throw new Error("Failed to edit task");
-      }
+
+
 
 
     const updatedTodos = await response.json();
@@ -170,12 +145,14 @@ function App() {
       console.log("Error in editing name",error);
     }
   }
+
   const searchTodos = todos.filter(todo=>{
     if(searchTerm.trim() === "")
         return todo;
     const lowerSearchTerm = searchTerm.toLowerCase();
     return todo.name.toLowerCase().includes(lowerSearchTerm)
   })
+
   const filteredTodos = searchTodos.filter(todo=>{
     if(filter=="complete"){
       return todo.completed;
@@ -201,7 +178,7 @@ function App() {
     />
   ));
   const loginTemplate = (
-    <Login onLogin = {setIsLoggedIn}/>
+    <Login onLogin = {setIsLoggedIn} setShowSignUp = {setShowSignUp}/>
   )
   const TodoTemplate = (
     <div className = "todoapp">
@@ -218,7 +195,11 @@ function App() {
       </div>
     </div>
   )
-  return (<> {isLoggedIn? TodoTemplate : loginTemplate}</>);
+
+  const SignUpTemplate = (
+    <SignUp setShowSignUp = {setShowSignUp}/>
+  )
+  return (<> {isLoggedIn? TodoTemplate : showSignUp? SignUpTemplate: loginTemplate}</>);
 }
 
 export default App;

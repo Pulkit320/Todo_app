@@ -44,6 +44,7 @@ body {
     gap: 15px;
 }
 
+.username,
 .email,
 .password-user {
     width: 100%;
@@ -60,6 +61,7 @@ body {
     border-color: #555;
 }
 
+.btn-signUp,
 .btn-login,
 .btn-signup {
     padding: 12px;

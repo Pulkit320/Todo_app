@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-function Login({onLogin}){
+function Login({onLogin, setShowSignUp}){
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     
@@ -20,8 +20,6 @@ function Login({onLogin}){
             if(!response.ok){
                 throw new Error("Failed to login in");
             }
-
-            //const data = await response.json();
             const data = await response.json();
             localStorage.setItem("token",data.token);
             onLogin(true);
@@ -42,8 +40,8 @@ function Login({onLogin}){
             <form id = "login-form" onSubmit={handleSubmit}>
                 <input className = "email" type = "text" value = {email} onChange={(e)=>setEmail(e.target.value)} />
                 <input className = "password-user" type = "password" value = {password} onChange={(e)=>setPassword(e.target.value)}/>
-                <button className = "btn-login">Login</button>
-                <button className = "btn-signup"> SignUp </button>
+                <button type = "submit" className = "btn-login">Login</button>
+                <button type = "button" className = "btn-signup" onClick={()=>setShowSignUp(true)}> SignUp </button>
             </form>
         </div>
     )
