@@ -1,5 +1,9 @@
 import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 import pool from "../db.js";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 try {
     await pool.query(`
@@ -8,7 +12,7 @@ try {
         );
     `);
 
-    const files = fs.readdirSync("./migrations")
+    const files = fs.readdirSync(__dirname)
         .filter(file => file.endsWith(".sql"))
         .sort();
 
@@ -22,7 +26,7 @@ try {
 
         if (result.rows.length === 0) {
             const sql = fs.readFileSync(
-                `./migrations/${file}`,
+                path.join(__dirname, file),
                 "utf8"
             );
 
