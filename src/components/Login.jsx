@@ -3,6 +3,7 @@ import { useState } from "react";
 function Login({onLogin, setShowSignUp}){
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [error,setError] = useState("");
     
     async function checkLogin(email,password){
         try{
@@ -18,7 +19,9 @@ function Login({onLogin, setShowSignUp}){
             )
 
             if(!response.ok){
-                throw new Error("Failed to login in");
+                const data = await response.json();
+                setError(data.error);
+                return;
             }
             const data = await response.json();
             localStorage.setItem("token",data.token);
@@ -38,6 +41,7 @@ function Login({onLogin, setShowSignUp}){
     return(
         <div className = "login-page">
             <form id = "login-form" onSubmit={handleSubmit}>
+                {error && <p>{error}</p>}
                 <input className = "email" type = "text" value = {email} onChange={(e)=>setEmail(e.target.value)} />
                 <input className = "password-user" type = "password" value = {password} onChange={(e)=>setPassword(e.target.value)}/>
                 <button type = "submit" className = "btn-login">Login</button>

@@ -12,41 +12,51 @@ import Search from "./components/Search";
 
 
 function App() {
+  const [error,setError] = useState("");
   const [todos, setTodos] = useState([]);
   const [filter,setFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading,setLoading] = useState(false);  
   const [isLoggedIn,setIsLoggedIn] = useState(localStorage.getItem("token")!== null);
   const [showSignUp,setShowSignUp] = useState(false);
   
-
+  
+    function handleLogout(){
+      localStorage.removeItem("token");
+      setTodos([]);
+      setError("");
+      setIsLoggedIn(false);
+    }
 
   useEffect(() => {
     if(isLoggedIn)
       {const fetchTodos = async()=>{
+        setLoading(true);
+        setError("");
       try{
         const url = "http://localhost:3000/todos";
         const options = {};
-
-        const response = await apiFetch(url,options,{setIsLoggedIn});
+        // await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        const response = await apiFetch(url,options);
         const data = await response.json();
         console.log("data from backend:", data);
         setTodos(data);
-      }catch{
-        console.error("Error fetching todo")
-
-    }  
+      }catch(error){
+        if(error.status === 401){
+          handleLogout();
+        }else
+          setError(error.message);
+        }
+      finally{
+        setLoading(false);
+      }  
   }
       fetchTodos();
 
 }
   },[isLoggedIn]);
 
-
-  function handleLogout(){
-    localStorage.removeItem("token");
-    setTodos([]);
-    setIsLoggedIn(false);
-  }
 
   async function addTodo(name,priority){
     try{
@@ -60,12 +70,14 @@ function App() {
           },
           body: JSON.stringify({name,priority})
         },
-        {setIsLoggedIn}
       );
 
       const newTodo = await response.json();
       setTodos(prevTodos=>[...prevTodos,newTodo]);
     }catch(error){
+        if(error.status === 401){
+          handleLogout();
+        }else
       console.error("Error adding todo",error);
     }
   }
@@ -78,12 +90,14 @@ function App() {
         {
           method : "DELETE",
         },
-        {setIsLoggedIn}
       );
 
       setTodos(prevTodos=>prevTodos.filter(todo=>todo.id!== id));
     }catch(error){
-      console.error("Error in deleting",error);
+        if(error.status === 401){
+          handleLogout();
+        }else
+          console.error("Error in deleting",error);
     }
   }
 
@@ -101,7 +115,6 @@ function App() {
             completed: !todo.completed
           })
         },
-        {setIsLoggedIn}
       );
       
       const updatedTodo = await response.json();
@@ -112,7 +125,10 @@ function App() {
         )
       );
     }catch(error){
-      console.error("Error in toggling",error);
+        if(error.status === 401){
+          handleLogout();
+        }else
+          console.error("Error in toggling",error);
     }
   }
 
@@ -129,7 +145,7 @@ function App() {
           body: JSON.stringify({
             name: newName
           })
-        },{setIsLoggedIn}
+        }
       );
 
 
@@ -142,7 +158,10 @@ function App() {
       )
     );
     }catch(error){
-      console.log("Error in editing name",error);
+        if(error.status === 401){
+          handleLogout();
+        }else
+          console.log("Error in editing name",error);
     }
   }
 
@@ -177,23 +196,26 @@ function App() {
       created_at = {todo.created_at}
     />
   ));
-  const loginTemplate = (
-    <Login onLogin = {setIsLoggedIn} setShowSignUp = {setShowSignUp}/>
-  )
-  const TodoTemplate = (
-    <div className = "todoapp">
+  const loginTemplate = (<>
+  <Login onLogin = {setIsLoggedIn} setShowSignUp = {setShowSignUp}/> 
+  </>
+)
+  const TodoTemplate = (<>
+    {loading?<p>Loading tasks...</p>:error?<p>{error}</p>:<div className = "todoapp">
       <Logout handleLogout={handleLogout} />
       <Form addTodo = {addTodo}/>
       <Filtering setFilter = {setFilter}/>
       <div className = "todo-list">
         <h2> Task List</h2>
         <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm}/> 
+        
         <ul role = "list"
         className  = "todo-list-items">
-          {taskList}
+          {(todos.length===0)? <li>No Tasks </li>: taskList}
         </ul>
       </div>
-    </div>
+    </div>}
+    </>
   )
 
   const SignUpTemplate = (

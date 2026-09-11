@@ -4,6 +4,7 @@ function SignUp({setShowSignUp}){
     const [username, setUsername] = useState("");
     const [email,setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
 
     async function newUser(username,email,password){
         try{
@@ -19,9 +20,12 @@ function SignUp({setShowSignUp}){
             )
 
             if(!response.ok){
-                throw new Error("Failed to signUp");
+                const data = await response.json();
+                setError(data.error)
+                return;
             }
             const data = await response.json();
+
             setShowSignUp(false);
         }catch(error){
             console.error("Error in signUp",error);
@@ -36,6 +40,7 @@ function SignUp({setShowSignUp}){
     return(
         <div className = "login-page">
             <form id = "login-form" onSubmit={handleSubmit}>
+                {error && <p>{error}</p>}
                 <input className = "username" type = "text" value = {username} onChange={(e)=>setUsername(e.target.value)}/>
                 <input className = "email" type = "text"  value = {email} onChange={(e)=>setEmail(e.target.value)}/>
                 <input className = "password-user" type = "password" value = {password} onChange={(e)=>setPassword(e.target.value)}/>

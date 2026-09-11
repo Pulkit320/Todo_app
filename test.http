@@ -1,8 +1,8 @@
-PATCH   http://localhost:3000/todos/5
+GET http://localhost:3000/todos/99999999
 # Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImlhdCI6MTc4ODk3NzQ1MiwiZXhwIjoxNzg4OTgxMDUyfQ.rxmgK-xYvr6cyv_lNKs5qGfkF6ULnhq2FEP5xB2ajQk
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhdCI6MTc4ODk3ODgwMCwiZXhwIjoxNzg4OTgyNDAwfQ.CTt_LEAmXZn1HfCaGiHcoujRpo4zUzBiHNSp7cHyT7Y
-Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYsImlhdCI6MTc4OTEyNDE1MiwiZXhwIjoxNzg5MTI3NzUyfQ.Q8hr7-39690KITiAvDirIiwbqoHc-5Ky-Y2l0DQ6cvQ
+# Content-Type: application/json
 
-{
-    "completed":"true"
-}
+# {
+#     "completed":"true"
+# }

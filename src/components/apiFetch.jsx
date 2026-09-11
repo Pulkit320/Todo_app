@@ -1,6 +1,6 @@
-async function apiFetch(url,options,{setIsLoggedIn}){
+async function apiFetch(url,options){
         const token = localStorage.getItem("token");
-        console.log("TOKEN BEING SENT:", token);
+        // console.log("TOKEN BEING SENT:", token);
         const response = await fetch(
         url,
         {
@@ -11,15 +11,13 @@ async function apiFetch(url,options,{setIsLoggedIn}){
             }
         }
     );
-        if(response.status === 401){
-            localStorage.removeItem("token");
-            setIsLoggedIn(false);
-            throw new Error("Unauthorized");
-        }
-
+    
         if (!response.ok) {
-        throw new Error("Failed to fetch todos"); 
-    }
+            const data = await response.json();
+            const error = new Error(data.error);
+            error.status = response.status;
+            throw error;
+        }
         return response
 }
 
