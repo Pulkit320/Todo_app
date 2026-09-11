@@ -4,10 +4,13 @@ import authRouter from './routes/authRoutes.js';
 import Todorouter from './routes/routes.js';
 import cors from 'cors';
 import 'dotenv/config';
+import helmet from "helmet";
 
 const app = express();
+const url = process.env.FRONTEND_URL;
+app.use(helmet());
 
-app.use(cors())
+app.use(cors({origin: `${url}`}))
 app.use(express.json());
 
 app.use("/auth",authRouter);

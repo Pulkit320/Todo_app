@@ -9,7 +9,7 @@ import Logout from "./components/Logout";
 import apiFetch from "./components/apiFetch";
 import Search from "./components/Search";
 
-
+const backend = import.meta.env.VITE_API_URL;
 
 function App() {
   const [error,setError] = useState("");
@@ -34,7 +34,7 @@ function App() {
         setLoading(true);
         setError("");
       try{
-        const url = "http://localhost:3000/todos";
+        const url = `${backend}/todos`;
         const options = {};
         // await new Promise(resolve => setTimeout(resolve, 2000));
         
@@ -62,7 +62,7 @@ function App() {
     try{
       const response = await apiFetch(
       
-        "http://localhost:3000/todos",
+        `${backend}/todos`,
         {
           method: "POST",
           headers: {
@@ -78,14 +78,14 @@ function App() {
         if(error.status === 401){
           handleLogout();
         }else
-      console.error("Error adding todo",error);
+            setError(error.message);
     }
   }
 
   async function deleteTodo(id){
     try{    
       const response = await apiFetch(
-        `http://localhost:3000/todos/${id}`,
+        `${backend}/todos/${id}`,
 
         {
           method : "DELETE",
@@ -105,7 +105,7 @@ function App() {
     try{
       const todo = todos.find(todo=>todo.id === id);
       const response = await apiFetch(
-        `http://localhost:3000/todos/${id}`,
+        `${backend}/todos/${id}`,
         {
           method: "PATCH",
           headers: {
@@ -135,7 +135,7 @@ function App() {
   async function editTodo(id, newName){
     try{
       const response = await apiFetch(
-        `http://localhost:3000/todos/${id}`,
+        `${backend}/todos/${id}`,
         {
           method: "PATCH",
            headers: {

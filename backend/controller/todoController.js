@@ -45,10 +45,43 @@ const createTodo = async (req,res)=>{
     const name = req.body.name;
     const priority = req.body.priority;
     const user_id = req.user;
-    if(!name){
+    if (!name) {
         return res.status(400).json({
             error: "name is required"
-        })
+        });
+    }
+
+    if (typeof name !== "string") {
+        return res.status(400).json({
+            error: "name must be a string"
+        });
+    }
+
+    if (name.trim().length === 0) {
+        return res.status(400).json({
+            error: "name cannot be empty"
+        });
+    }
+    if (name.trim().length > 255) {
+        return res.status(400).json({
+            error: "name must be at most 255 characters"
+        });
+    }
+
+    if (priority !== undefined && priority !== null) {
+        if (typeof priority !== "string") {
+            return res.status(400).json({
+                error: "priority must be a string"
+            });
+        }
+
+        const allowedPriorities = ["low", "medium", "high"];
+
+        if (!allowedPriorities.includes(priority)) {
+            return res.status(400).json({
+                error: "Invalid priority"
+            });
+        }
     }
 
     const text = 'INSERT INTO todos(name,priority,user_id) VALUES ($1, $2,$3) RETURNING *';
@@ -107,7 +140,46 @@ const updatebyId = async (req, res) => {
   const setClauses = [];
   const values = [];
 
+  if (updates.name !== undefined) {
+      if (typeof updates.name !== "string") {
+          return res.status(400).json({
+              error: "name must be a string"
+          });
+      }
+
+      if (updates.name.trim().length === 0) {
+          return res.status(400).json({
+              error: "name cannot be empty"
+          });
+      }
+    }
+
+    if (updates.priority !== undefined) {
+        if (typeof updates.priority !== "string") {
+            return res.status(400).json({
+                error: "priority must be a string"
+            });
+        }
+
+        const allowedPriorities = ["low", "medium", "high"];
+
+        if (!allowedPriorities.includes(updates.priority)) {
+            return res.status(400).json({
+                error: "Invalid priority"
+            });
+        }
+    }
+
+    if(updates.completed !== undefined){
+        if(typeof updates.completed !== "boolean"){
+            return res.status(400).json({
+                error: "Completed must be boolean"
+            })
+        }
+    }
+
   for (const field of allowedFields) {
+
     if (updates[field] !== undefined) {
       setClauses.push(`${field} = $${values.length + 1}`);
       values.push(updates[field]);

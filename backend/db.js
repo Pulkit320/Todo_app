@@ -6,9 +6,10 @@ const dbhost = process.env.PGHOST;
 const dbuser = process.env.PGUSER;
 const dbpassword = process.env.PGPASSWORD;
 const db = process.env.PGDATABASE;
-
+const connectionString = process.env.DATABASE_URL
 
 const pool = new Pool({
+    connectionString: connectionString,
     user : dbuser,
     password : dbpassword,
     host : dbhost,

@@ -1,5 +1,7 @@
 import {useState} from "react";
 
+const backend = import.meta.env.VITE_API_URL;
+
 function SignUp({setShowSignUp}){
     const [username, setUsername] = useState("");
     const [email,setEmail] = useState("");
@@ -9,7 +11,7 @@ function SignUp({setShowSignUp}){
     async function newUser(username,email,password){
         try{
             const response = await fetch(
-                "http://localhost:3000/auth/register",
+                `${backend}/auth/register`,
                 {
                     method: "POST",
                     headers: {

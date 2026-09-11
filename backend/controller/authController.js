@@ -13,12 +13,64 @@ const newRegister = async(req, res)=>{
             error: "Username, email and password are required"
             });
         }
+
+        if(typeof username !== "string"){
+            return res.status(400).json({
+                error: "Username must be a string"
+            });
+        }
+
+
+        if(username.trim().length<3){
+            return res.status(400).json({
+                error: "Username must be at least 3 characters long"
+            });
+        }
+
+        if(username.trim().length>50){
+            return res.status(400).json({
+                error: "Username must be at most 50 characters"
+            });
+        }
+
+        if (typeof email !== "string") {
+            return res.status(400).json({
+                error: "Email must be a string"
+            });
+        }
+
+        const emailRegex =  /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({
+                error: "Invalid email format"
+            });
+        }
+
+        if(typeof password !== "string"){
+            return res.status(400).json({
+                error: "Password must be a string"
+            });
+        }
+
+        if(password.length<8){
+            return res.status(400).json({
+                error: "Password must be atleast 8 characters"
+            })
+        }
+        
+        if (password.length > 72) {
+            return res.status(400).json({
+            error: "Password must be at most 72 characters"
+            });
+        }
+
         const text = `SELECT * FROM users WHERE email = $1`;
         const values = [email];
         const validation = await pool.query(text,values);
 
         if(validation.rows.length !== 0){
-            return res.status(400).json({
+            return res.status(409).json({
                 error: "email is already used"
             })
         }
@@ -53,6 +105,19 @@ const login = async(req,res)=>{
             })
         }
 
+        if (typeof email !== "string") {
+            return res.status(400).json({
+                error: "Email must be a string"
+            });
+        }
+
+        const emailRegex =  /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({
+                error: "Invalid email format"
+            });
+        }
 
         const text = 'SELECT id, password_hash from users where email = $1';
         const values = [email];
@@ -68,7 +133,7 @@ const login = async(req,res)=>{
 
         if(!match){
             return res.status(401).json({
-                error: "Invalid email or passwor"
+                error: "Invalid email or password"
             })
         }
         else{
