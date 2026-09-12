@@ -2,7 +2,7 @@ import {useState} from "react";
 
 function Form({addTodo}) {
     const [input, setInput] = useState("");
-    const [priority,setPriority] = useState("Medium");
+    const [priority,setPriority] = useState("medium");
 
     function handleSubmit(e){
         e.preventDefault();
